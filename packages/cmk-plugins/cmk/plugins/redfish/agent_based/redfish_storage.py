@@ -104,9 +104,7 @@ def check_redfish_storage_battery(item: str, section: RedfishAPIData) -> CheckRe
     if data is None:
         return
 
-    battery_data = (
-        data.get("Oem", {}).get("Dell", {}).get("DellControllerBattery", None)
-    )
+    battery_data = data.get("Oem", {}).get("Dell", {}).get("DellControllerBattery", None)
     if not battery_data:
         return
 

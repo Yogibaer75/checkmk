@@ -51,9 +51,7 @@ def check_redfish_pdus(item: str, section: RedfishAPIData) -> CheckResult:
     model = data.get("Model")
     manufacturer = data.get("Manufacturer")
 
-    yield Result(
-        state=State.OK, summary=f"PDU {manufacturer} {model} S/N {serial} FW {firmware}"
-    )
+    yield Result(state=State.OK, summary=f"PDU {manufacturer} {model} S/N {serial} FW {firmware}")
 
     dev_state, dev_msg = redfish_health_state(data.get("Status", {}))
     yield Result(state=State(dev_state), summary=dev_msg)

@@ -503,7 +503,9 @@ def get_information(storage: Storage, redfishobj: RedfishData) -> Literal[0]:
     chassis_url = redfishobj.base_data.get("Chassis", {}).get("@odata.id")
     systems_url = redfishobj.base_data.get("Systems", {}).get("@odata.id")
     if not systems_url or not chassis_url:
-        raise CannotRecover("ERROR: probably not a Redfish computer system - missing Systems or Chassis information")
+        raise CannotRecover(
+            "ERROR: probably not a Redfish computer system - missing Systems or Chassis information"
+        )
     data_model = ""
     manager_data: Sequence[Mapping[str, Any]] = []
 

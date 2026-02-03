@@ -66,9 +66,7 @@ def inventory_redfish_data(
     odata_ids_set = _extract_odata_ids(section_redfish_memory, odata_ids_set)
     odata_ids_set = _extract_odata_ids(section_redfish_power, odata_ids_set)
     odata_ids_set = _extract_odata_ids(section_redfish_thermal, odata_ids_set)
-    odata_ids_set = _extract_odata_ids(
-        section_redfish_networkadapters, odata_ids_set
-    )
+    odata_ids_set = _extract_odata_ids(section_redfish_networkadapters, odata_ids_set)
 
     for path, name, serial, part_number, manufacturer, model in odata_ids_set:
         if serial == "nothing set":

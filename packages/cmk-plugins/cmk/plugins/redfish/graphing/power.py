@@ -122,9 +122,7 @@ perfometer_averageconsumedwatts_0 = perfometers.Perfometer(
     name="averageconsumedwatts_0",
     focus_range=perfometers.FocusRange(
         perfometers.Closed(0),
-        perfometers.Open(
-            metrics.MaximumOf("averageconsumedwatts_0", color=metrics.Color.BLUE)
-        ),
+        perfometers.Open(metrics.MaximumOf("averageconsumedwatts_0", color=metrics.Color.BLUE)),
     ),
     segments=[
         "averageconsumedwatts_0",
