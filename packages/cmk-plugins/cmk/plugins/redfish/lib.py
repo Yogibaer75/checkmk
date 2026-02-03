@@ -259,6 +259,8 @@ def process_redfish_perfdata(entry: Mapping[str, Any]) -> None | Perfdata:
 
     def optional_tuple(warn: float | None, crit: float | None) -> Levels | None:
         assert (warn is None) == (crit is None)
+        if warn == 0 and crit == 0:
+            return None
         if warn is not None and crit is not None:
             return ("fixed", (warn, crit))
         return None

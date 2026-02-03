@@ -283,6 +283,7 @@ def get_information(redfishobj):
 
     manager_url = base_data.get("Managers", {}).get("@odata.id")
     systems_url = base_data.get("PowerEquipment", {}).get("@odata.id")
+    chasis_url = base_data.get("Chassis", {}).get("@odata.id")
 
     manager_data = []
     fw_version = vendor_data.firmware_version
@@ -294,6 +295,19 @@ def get_information(redfishobj):
 
         for element in manager_data:
             fw_version = fw_version or element.get("FirmwareVersion")
+
+    if chasis_url:
+        chasis_col = fetch_data(redfishobj, chasis_url, "Chassis")
+        chasis_data = fetch_collection(redfishobj, chasis_col, "Chassis")
+        sys.stdout.write("<<<redfish_chassis:sep(0)>>>\n")
+        sys.stdout.write(f"{json.dumps(chasis_data, sort_keys=True)}\n")
+        chassis_sections = [
+            "Sensors",
+        ]
+
+        for chassis in chasis_data:
+            result = fetch_sections(redfishobj, chassis_sections, chassis)
+            process_result(result)
 
     labels: Mapping[str, str] = {
         "cmk/os_family": "redfish",

@@ -53,7 +53,7 @@ def _item_name(item_data, padding):
 
 def inventorize_redfish_firmware(section: RedfishAPIData) -> InventoryResult:
     """create inventory table for firmware"""
-    path = ["hardware", "firmware", "redfish"]
+    path = ["hardware", "firmware"]
     if section.get("FirmwareInventory", {}).get("Current"):
         data = section.get("FirmwareInventory", {}).get("Current")
         padding = len(str(len(data)))
