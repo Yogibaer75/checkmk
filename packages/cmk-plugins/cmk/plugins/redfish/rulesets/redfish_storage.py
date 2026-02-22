@@ -15,8 +15,8 @@ from cmk.rulesets.v1.form_specs import (
 from cmk.rulesets.v1.form_specs.validators import LengthInRange
 from cmk.rulesets.v1.rule_specs import (
     CheckParameters,
-    Topic,
     HostAndItemCondition,
+    Topic,
 )
 
 
