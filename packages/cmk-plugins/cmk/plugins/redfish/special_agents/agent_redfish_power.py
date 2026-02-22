@@ -301,9 +301,7 @@ def get_information(redfishobj):
         chasis_data = fetch_collection(redfishobj, chasis_col, "Chassis")
         sys.stdout.write("<<<redfish_chassis:sep(0)>>>\n")
         sys.stdout.write(f"{json.dumps(chasis_data, sort_keys=True)}\n")
-        chassis_sections = [
-            "Sensors",
-        ]
+        chassis_sections: tuple[SectionName, ...] = ("Sensors",)
 
         for chassis in chasis_data:
             result = fetch_sections(redfishobj, chassis_sections, chassis)

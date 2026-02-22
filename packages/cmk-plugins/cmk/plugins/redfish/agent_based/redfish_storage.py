@@ -44,7 +44,9 @@ def discovery_redfish_storage_battery(section: RedfishAPIData) -> DiscoveryResul
             yield Service(item=section[key]["Id"])
 
 
-def check_redfish_storage(item: str, params: dict, section: RedfishAPIData) -> CheckResult:
+def check_redfish_storage(
+    item: str, params: dict[str, str], section: RedfishAPIData
+) -> CheckResult:
     """Check single Controller state"""
     data = section.get(item, None)
     if data is None:

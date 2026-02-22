@@ -10,7 +10,7 @@ from cmk.agent_based.v2 import InventoryPlugin, InventoryResult, TableRow
 from cmk.plugins.redfish.lib import RedfishAPIData
 
 
-def _extract_odata_ids(data, ids_set):
+def _extract_odata_ids(data, ids_set) -> set[tuple[str, str, str, str, str, str]]:
     if isinstance(data, Mapping):
         for key, value in data.items():
             # if key '@odata.id' and value is a string, extract the OData ID value
@@ -58,7 +58,7 @@ def inventory_redfish_data(
 ) -> InventoryResult:
     result_path = ["redfish"]
 
-    odata_ids_set = set()  # Set to remove duplicates
+    odata_ids_set: set[tuple[str, str, str, str, str, str]] = set()
     odata_ids_set = _extract_odata_ids(section_redfish_processors, odata_ids_set)
     odata_ids_set = _extract_odata_ids(section_redfish_storage, odata_ids_set)
     odata_ids_set = _extract_odata_ids(section_redfish_drives, odata_ids_set)
