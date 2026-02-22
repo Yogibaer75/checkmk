@@ -5,6 +5,7 @@
 # License: GNU General Public License v2
 
 from collections.abc import Mapping, Sequence
+from typing import Any
 
 from cmk.agent_based.v2 import InventoryPlugin, InventoryResult, TableRow
 from cmk.plugins.redfish.lib import RedfishAPIData
@@ -12,7 +13,9 @@ from cmk.plugins.redfish.lib import RedfishAPIData
 IDSET = set[tuple[str, str, str, str, str, str]]
 
 
-def _extract_odata_ids(data: None | RedfishAPIData, ids_set: IDSET) -> IDSET:
+def _extract_odata_ids(
+    data: None | RedfishAPIData | Sequence[Mapping[str, Any]], ids_set: IDSET
+) -> IDSET:
     if isinstance(data, Mapping):
         for key, value in data.items():
             # if key '@odata.id' and value is a string, extract the OData ID value
