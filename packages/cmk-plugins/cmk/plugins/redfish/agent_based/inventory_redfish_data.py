@@ -16,36 +16,29 @@ IDSET = set[tuple[str, str, str, str, str, str]]
 def _extract_odata_ids(
     data: None | RedfishAPIData | Sequence[Mapping[str, Any]], ids_set: IDSET
 ) -> IDSET:
+    if data is None or isinstance(data, (str, int, float, bool)):
+        return ids_set
+
     if isinstance(data, Mapping):
         for key, value in data.items():
-            # if key '@odata.id' and value is a string, extract the OData ID value
             if key == "@odata.id" and isinstance(value, str):
-                key_name = data.get("Name")
-                serial_number = data.get("SerialNumber", "nothing set")
-                part_number = data.get("PartNumber", "nothing set")
-                manufacturer = data.get("Manufacturer", "nothing set")
-                model = data.get("Model", "nothing set")
-                # if 'Oem' in data, skip this entry and go deeper
-                if "Oem" in value:
-                    continue
-                if key_name:
-                    # add name is not None add to set
-                    ids_set.add(
-                        (
-                            value,
-                            key_name,
-                            serial_number,
-                            part_number,
-                            manufacturer,
-                            model,
+                if "Oem" not in value:
+                    key_name = data.get("Name")
+                    if key_name:
+                        ids_set.add(
+                            (
+                                value,
+                                key_name,
+                                (data.get("SerialNumber") or "nothing set").strip(),
+                                (data.get("PartNumber") or "nothing set").strip(),
+                                (data.get("Manufacturer") or "nothing set").strip(),
+                                (data.get("Model") or "nothing set").strip(),
+                            )
                         )
-                    )
-            # else recursively call for nested mappings or sequences
             else:
                 ids_set = _extract_odata_ids(value, ids_set)
-    elif isinstance(data, Sequence) and not isinstance(data, (str, bytes)):
+    else:
         for item in data:
-            # Rekursiv für jedes Element in der Liste/Tupel aufrufen
             ids_set = _extract_odata_ids(item, ids_set)
 
     return ids_set
@@ -74,7 +67,12 @@ def inventory_redfish_data(
     odata_ids_set = _extract_odata_ids(section_redfish_networkadapters, odata_ids_set)
 
     for path, name, serial, part_number, manufacturer, model in odata_ids_set:
-        if serial == "nothing set":
+        if (
+            serial in ("nothing set", "NOT AVAILABLE")
+            and part_number in ("nothing set", "NOT AVAILABLE")
+            and manufacturer == "nothing set"
+            and model == "nothing set"
+        ):
             continue
         if path.startswith("/redfish/"):
             segments = (
@@ -97,9 +95,9 @@ def inventory_redfish_data(
         final_path = ["hardware"] + result_path
         yield TableRow(
             path=final_path,
-            key_columns={"name": name},
+            key_columns={"id": item_id},
             inventory_columns={
-                "id": item_id,
+                "name": name,
                 "serial": serial,
                 "part_number": part_number,
                 "manufacturer": manufacturer,
