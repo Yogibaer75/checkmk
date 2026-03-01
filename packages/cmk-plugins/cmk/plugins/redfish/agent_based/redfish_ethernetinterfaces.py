@@ -69,7 +69,9 @@ def _render_speed(speed: int) -> str:
     return render.networkbandwidth(speed / 8 * factor)
 
 
-def check_redfish_ethernetinterfaces(item: str, section: RedfishAPIData) -> CheckResult:
+def check_redfish_ethernetinterfaces(
+    item: str, params: Mapping[str, Any], section: RedfishAPIData
+) -> CheckResult:
     """Check single interfaces"""
     data = section.get(item, None)
     if data is None:
@@ -78,16 +80,16 @@ def check_redfish_ethernetinterfaces(item: str, section: RedfishAPIData) -> Chec
     link_state = State.OK
     link_summary = "Link: No info"
     if (link_status := data.get("LinkStatus")) is not None:
-        link_summary=f"Link: {link_status}"
+        link_summary = f"Link: {link_status}"
         if (discover_link_changed := params.get("discover_link_status")) != link_status:
-            link_state=State(params.get("state_if_link_status_changed") or 0)
-            link_summary=f"Link: {link_status} (changed from {discover_link_changed})"
+            link_state = State(params.get("state_if_link_status_changed") or 0)
+            link_summary = f"Link: {link_status} (changed from {discover_link_changed})"
     yield Result(state=link_state, summary=link_summary)
 
     speed_state = State.OK
     speed_summary = "Speed: No info"
     link_speed: int | None = data.get("CurrentLinkSpeedMbps")
-    if link_speed is None: # Prioritize CurrentLinkSpeedMbps, fallback to SpeedMbps
+    if link_speed is None:  # Prioritize CurrentLinkSpeedMbps, fallback to SpeedMbps
         link_speed = data.get("SpeedMbps")
 
     if link_speed is not None:
@@ -95,8 +97,7 @@ def check_redfish_ethernetinterfaces(item: str, section: RedfishAPIData) -> Chec
         if (discover_speed := params.get("discover_speed") or 0) != link_speed:
             speed_state = State(params.get("state_if_link_speed_changed") or 0)
             speed_summary = (
-                f"Speed: {_render_speed(link_speed)} "
-                f"(changed from {_render_speed(discover_speed)})"
+                f"Speed: {_render_speed(link_speed)} (changed from {_render_speed(discover_speed)})"
             )
     yield Result(state=speed_state, summary=speed_summary)
 
