@@ -110,6 +110,8 @@ def parse_redfish_multiple(string_table: StringTable) -> RedfishAPIData:
             item = entry.get("@odata.id")
         elif "Thermal" in entry.get("@odata.type"):
             item = entry.get("@odata.id")
+        elif "Volume" in entry.get("@odata.type"):
+            item = entry.get("@odata.id")
         else:
             item = entry.get("Id")
         parsed.setdefault(item, entry)

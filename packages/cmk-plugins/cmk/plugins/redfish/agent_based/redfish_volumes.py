@@ -3,6 +3,9 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+from collections.abc import Mapping
+from typing import Any
+
 from cmk.agent_based.v2 import (
     AgentSection,
     CheckPlugin,
@@ -25,13 +28,39 @@ agent_section_redfish_volumes = AgentSection(
 )
 
 
-def discovery_redfish_volumes(section: RedfishAPIData) -> DiscoveryResult:
-    for key in section.keys():
-        yield Service(item=section[key]["Id"])
+def _build_volume_item(data: Mapping[str, Any]) -> tuple[str, str]:
+    item1 = data["Id"]
+    item2 = item1
+    if isinstance(data.get("@odata.id"), str):
+        odataid = str(data.get("@odata.id"))
+        parts = odataid.split("/")
+        try:
+            system_id = parts[parts.index("Systems") + 1]
+            storage_id = parts[parts.index("Storage") + 1]
+            drive_id = parts[parts.index("Volumes") + 1]
+            item2 = ":".join([system_id, storage_id, drive_id])
+        except ValueError:
+            item2 = item1
+    return item1, item2
+
+
+def discovery_redfish_volumes(
+    params: Mapping[str, Any], section: RedfishAPIData
+) -> DiscoveryResult:
+    for _key, data in section.items():
+        item1, item2 = _build_volume_item(data)
+        if params.get("item", "classic") == "classic":
+            yield Service(item=item1)
+        yield Service(item=item2)
 
 
 def check_redfish_volumes(item: str, section: RedfishAPIData) -> CheckResult:
-    data = section.get(item, None)
+    data = None
+    for _key, volume_data in section.items():
+        item1, item2 = _build_volume_item(volume_data)
+        if item in (item1, item2):
+            data = volume_data
+            break
     if data is None:
         return
     volume_msg = (
@@ -52,5 +81,7 @@ check_plugin_redfish_volumes = CheckPlugin(
     service_name="Volume %s",
     sections=["redfish_volumes"],
     discovery_function=discovery_redfish_volumes,
+    discovery_ruleset_name="discovery_redfish_volumes",
+    discovery_default_parameters={"item": "classic"},
     check_function=check_redfish_volumes,
 )
